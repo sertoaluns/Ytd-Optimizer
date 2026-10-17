@@ -104,6 +104,16 @@ namespace YtdOptimizer.Core
 
             if (pixels != null && pixels.Length >= texture.Width * texture.Height * 4)
             {
+                // CodeWalker DDSIO.GetPixels returns BGRA (Blue, Green, Red, Alpha) byte order (standard DirectX D3DFMT_A8R8G8B8).
+                // We convert BGRA to RGBA by swapping Blue and Red channels so ImageSharp and texconv process true colors.
+                int totalPixels = texture.Width * texture.Height * 4;
+                for (int i = 0; i < totalPixels; i += 4)
+                {
+                    byte b = pixels[i];
+                    pixels[i] = pixels[i + 2];     // Red
+                    pixels[i + 2] = b;             // Blue
+                }
+
                 return Image.LoadPixelData<Rgba32>(pixels, texture.Width, texture.Height);
             }
 
